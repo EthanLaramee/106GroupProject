@@ -1,6 +1,8 @@
 var currentScene = 0;
 
+
 //Khan button class    
+{
 var Button = function(config) {
     this.x = config.x || 0;
     this.y = config.y || 0;
@@ -31,7 +33,10 @@ Button.prototype.handleMouseClick = function() {
         this.onClick();
     }
 };
+}
 
+//Abel's Bitmoji Code
+{
 var drawHead = function(bitmojiX, bitmojiY, bitSize) {
     noStroke();
     //drawHead
@@ -105,7 +110,10 @@ var drawBitmoji = function(bitmojiX, bitmojiY, bitSize){
     drawBody(bitmojiX, bitmojiY, bitSize);
     drawShirt(bitmojiX, bitmojiY, bitSize);
 };
+}
 
+//Ethan's Bitmoji Code
+{
 var bitmojiHeadShape = function (bitmojiX, bitmojiY,bitmojiSize) {
     noStroke();
     fill(255,224,189);//head skin tone
@@ -196,7 +204,7 @@ var jacketHood = function(bitmojiX,bitmojiY,bitmojiSize) {
     arc(bitmojiX,bitmojiY+(65*bitmojiSize/100),(80*bitmojiSize/100),(28*bitmojiSize/100),-180,0); //hood of jacket
 };
 
-var neck = function(bitmojiX,bitmojiY,bitmojiSize){
+var bitmojiNeck = function(bitmojiX,bitmojiY,bitmojiSize){
     noStroke();
     fill(255, 224, 189); //skin tone
     rect(bitmojiX-(15*bitmojiSize/100),bitmojiY+(38*bitmojiSize/100),(29*bitmojiSize/100),(26*bitmojiSize/100)); //neck
@@ -223,20 +231,19 @@ var jacketChest = function (bitmojiX, bitmojiY,bitmojiSize) {
     line(bitmojiX+(24*bitmojiSize/100),bitmojiY+(66*bitmojiSize/100),bitmojiX+(24*bitmojiSize/100),bitmojiY+(100*bitmojiSize/100)); //right jacket string
 };
 
-
 //combining functions for bitmoji into bigger pieces
-var jacket = function(bitmojiX,bitmojiY,bitmojiSize) {
+var bitmojiJacket = function(bitmojiX,bitmojiY,bitmojiSize) {
     jacketSleeves(bitmojiX, bitmojiY, bitmojiSize);
     jacketChest(bitmojiX, bitmojiY, bitmojiSize);
     jacketHood(bitmojiX, bitmojiY, bitmojiSize);
 };
 
-var hat = function(bitmojiX,bitmojiY,bitmojiSize) {
+var bitmojiHat = function(bitmojiX,bitmojiY,bitmojiSize) {
     hatShape(bitmojiX, bitmojiY, bitmojiSize);
     hatText(bitmojiX, bitmojiY, bitmojiSize);
 };
 
-var face = function(bitmojiX,bitmojiY,bitmojiSize) {
+var bitmojiFace = function(bitmojiX,bitmojiY,bitmojiSize) {
     bitmojiHeadShape(bitmojiX, bitmojiY, bitmojiSize);
     bitmojiHair(bitmojiX, bitmojiY, bitmojiSize);
     bitmojiEyes(bitmojiX, bitmojiY, bitmojiSize);
@@ -246,21 +253,194 @@ var face = function(bitmojiX,bitmojiY,bitmojiSize) {
 };
 
 var drawBitmojiEthan = function(bitmojiX,bitmojiY,bitmojiSize) {
-    face(bitmojiX, bitmojiY, bitmojiSize);
-    hat(bitmojiX, bitmojiY, bitmojiSize);
-    jacket(bitmojiX, bitmojiY, bitmojiSize);
-    neck(bitmojiX, bitmojiY, bitmojiSize);
+    bitmojiFace(bitmojiX, bitmojiY, bitmojiSize);
+    bitmojiHat(bitmojiX, bitmojiY, bitmojiSize);
+    bitmojiJacket(bitmojiX, bitmojiY, bitmojiSize);
+    bitmojiNeck(bitmojiX, bitmojiY, bitmojiSize);
 };
+}
+
+
+//Defines game character MARIO (right facing)
+{
+var marioCharacterFace = function (xPos, yPos, size) {
+    noStroke();
+    fill(255, 210, 160); //skin tone of character
+    rect(xPos, yPos, 150*size/100, 125*size/100); //face
+    rect(xPos + 50*size/100, yPos + 100*size/100, 25*size/100, 25*size/100); //chin
+    rect(xPos - 25*size/100, yPos + 25*size/100, 25*size/100, 50*size/100); //ears
+    rect(xPos + 150*size/100, yPos + 25*size/100, 50*size/100, 50*size/100); //nose
+    rect(xPos + 200*size/100, yPos + 50*size/100, 25*size/100, 25*size/100);
+    fill(153, 92, 0); //hair color of character
+    rect(xPos + 100*size/100, yPos + 75*size/100, 100*size/100,25*size/100); //mustache
+    rect(xPos + 125*size/100, yPos + 50*size/100, 25*size/100, 25*size/100);
+    rect(xPos - 25*size/100, yPos, 75*size/100, 25*size/100); //head hair
+    rect(xPos - 50*size/100, yPos + 25*size/100, 25*size/100, 75*size/100); 
+    rect(xPos - 25*size/100, yPos + 75*size/100, 25*size/100, 25*size/100);
+    rect(xPos, yPos + 25*size/100, 25*size/100, 50*size/100); //sideburns
+    rect(xPos + 25*size/100, yPos + 50*size/100, 25*size/100, 25*size/100);
+    fill(0, 0, 0); //eye color of character
+    rect(xPos + 100*size/100, yPos, 25*size/100, 50*size/100); //eyes
+};
+
+var marioCharacterHat = function (xPos, yPos, size) {
+    noStroke();
+    fill(255, 0, 0);
+    rect(xPos - 25*size/100, yPos - 25*size/100, 225*size/100, 25*size/100);
+    rect(xPos, yPos - 50*size/100, 125*size/100, 25*size/100);
+};
+
+var marioCharacterShirt = function (xPos, yPos, size) {
+    noStroke();
+    fill(255, 0, 0);
+    rect(xPos - 25*size/100, yPos + 125*size/100, 25*size/100, 100*size/100); //left sleeve
+    rect(xPos, yPos + 125*size/100, 25*size/100, 75*size/100);
+    rect(xPos - 50*size/100, yPos + 150*size/100, 25*size/100, 50*size/100);
+    rect(xPos - 75*size/100, yPos + 175*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 50*size/100, yPos + 125*size/100, 75*size/100, 50*size/100); //chest
+    rect(xPos + 125*size/100, yPos + 150*size/100, 75*size/100, 50*size/100); //right sleeve
+    rect(xPos + 200*size/100, yPos + 175*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 150*size/100, yPos + 200*size/100, 25*size/100, 25*size/100);
+};
+
+var marioCharacterJeans = function(xPos, yPos, size) {
+    noStroke();
+    fill(0, 0, 255);
+    rect(xPos + 25*size/100, yPos + 125*size/100, 25*size/100, 75*size/100); //straps
+    rect(xPos + 100*size/100, yPos + 150*size/100, 25*size/100, 50*size/100);
+    rect(xPos + 50*size/100, yPos + 175*size/100, 50*size/100, 25*size/100);
+    rect(xPos, yPos + 200*size/100, 150*size/100, 75*size/100); //legs
+    rect(xPos + 25*size/100, yPos + 125*size/100, 25*size/100, 75*size/100);
+    rect(xPos - 25*size/100, yPos + 250*size/100, 75*size/100, 50*size/100);
+    rect(xPos + 100*size/100, yPos + 250*size/100, 75*size/100, 50*size/100);
+    fill(255, 255, 0); //pant buttons
+    rect(xPos + 25*size/100, yPos + 200*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 100*size/100, yPos + 200*size/100, 25*size/100, 25*size/100);
+};
+
+var marioCharacterHands = function(xPos, yPos, size) {
+    fill(255, 210, 160); //skintone of character
+    rect(xPos - 75*size/100, yPos + 200*size/100, 50*size/100, 75*size/100); //left hand
+    rect(xPos - 25*size/100, yPos + 225*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 175*size/100, yPos + 200*size/100, 50*size/100, 75*size/100); //right hand
+    rect(xPos + 150*size/100, yPos + 225*size/100, 25*size/100, 25*size/100);
+};
+
+var marioCharacterShoes = function(xPos, yPos, size) {
+    noStroke();
+    fill(140, 75, 0);
+    rect(xPos - 50*size/100, yPos + 300*size/100, 75*size/100, 50*size/100); //left shoe
+    rect(xPos - 75*size/100, yPos + 325*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 125*size/100, yPos + 300*size/100, 75*size/100, 50*size/100); //right shoe
+    rect(xPos + 200*size/100, yPos + 325*size/100, 25*size/100, 25*size/100);
+};
+
+//Combine character parts together
+var marioCharacter = function(xPos, yPos, size) {
+    //NOTE: center of character is at back of neck
+    marioCharacterFace(xPos, yPos, size);
+    marioCharacterHat(xPos, yPos, size);
+    marioCharacterShirt(xPos, yPos, size);
+    marioCharacterJeans(xPos, yPos, size);
+    marioCharacterHands(xPos, yPos, size);
+    marioCharacterShoes(xPos, yPos, size);
+}; 
+}
+
+
+//Defines arrow shape, which is resizable (used on help screen)
+var horizontalArrow = function(xPos, yPos, size) {
+    noStroke();
+    fill(0, 0, 0);
+    triangle(xPos - 82*size/100, yPos + 100*size/100, xPos - 70*size/100, yPos + 120*size/100*size/100, xPos - 58*size/100, yPos + 100*size/100);
+    rect(xPos - 74*size/100, yPos + 80*size/100,8*size/100,25*size/100);
+};
+
+
+//Defines coin used to earn points in the game
+var gameCoin = function(xPos, yPos, size) {
+    noStroke();
+    fill(255, 230, 0);
+    ellipse(xPos, yPos, 50*size/100, 50*size/100); //outer rim of coin
+    fill(250, 255, 0);
+    ellipse(xPos, yPos, 45*size/100, 45*size/100); //inner part of coin
+    fill(0, 0, 0);
+    textSize(35*size/100);
+    text("$",xPos - 9*size/100, yPos - 21*size/100); //text shown on top of coin
+};
+/*for some reason coin only works after using buttons on splash screen, otherwise the text will be outside of it*/
+
+
+//Defines the different types of clouds that will move across the sky
+var cloudType1 = function(xPos, yPos) {
+    noStroke();
+    fill(255, 255, 255);
+    ellipse(xPos, yPos,80,50);
+    ellipse(xPos - 37, yPos + 6,40,33);
+    ellipse(xPos + 38, yPos + 10,45,25);
+};
+
+var cloudType2 = function(xPos, yPos) {
+    noStroke();
+    fill(255, 255, 255);
+    ellipse(xPos + 100, yPos + 100,70,40);
+    ellipse(xPos + 70, yPos + 95,44,26);
+    ellipse(xPos + 130, yPos + 104,44,26);
+};
+
+var cloudType3 = function(xPos, yPos) {
+    noStroke();
+    fill(255, 255, 255);
+    ellipse(xPos + 181, yPos + 30,90,30);
+    ellipse(xPos + 139, yPos + 35,35,18);
+    ellipse(xPos + 193, yPos + 19,40,20);
+    ellipse(xPos + 207, yPos + 38,44,20);
+};
+
+
 
 var gameScreen = function() {
-    background(0, 0, 0);
+    background(174, 236, 245); //sky color
+    cloudType1(100,100);
+    cloudType2(150,65); //at somepoint I want to make the clouds move across the screen
+    cloudType3(125,40);
+    for (var i = 0; i < 10; i++) {
+        image(getImage("cute/StoneBlock"), -20 + 55*i, 357, 60, 50); //stone floor
+    }
+    image(getImage("cute/WallBlockTall"),-45,280,70,116); //left wall
+    image(getImage("cute/WallBlockTall"),375,280,70,116); //right wall
+    //walls will act as bounds to our character later on
 };
+
+//start button to change from HELP screen to GAME screen
+var helpStartButton = new Button({
+    x: 65,
+    y: 320,
+    label: "START",
+    onClick: function() {
+        currentScene = 1;
+        gameScreen();
+    }
+});
 
 var helpScreen = function() {
-    background(255, 0, 255);
+    background(255, 158, 143);
+    noStroke();
+    fill(255, 255, 255);
+    rect(15,65,250,315,5);
+    fill(0, 0, 0);
+    textSize(30);
+    text("HOW TO PLAY:",20,15);
+    textSize(15);
+    text("Using the arrow keys on your keyboard avoid the falling barrels and collect the coins. For every coin you collect you earn 5 points, but if you hit a barrel you will lose a life. Be careful, because you only have 3 lives! When you lose all of your lives the game will end and you will have the option to retry or return to the menu.", 30,75,230,195);
+    horizontalArrow(400,90,100);
+    marioCharacter(305,255,35);
+    gameCoin(330,125,100);
+    helpStartButton.draw();
 };
 
-//start button to change from splash to info screen
+
+//start button to change from SPLASH to GAME screen
 var startButton = new Button({
     x: 38,
     y: 330,
@@ -271,6 +451,7 @@ var startButton = new Button({
     }
 });
 
+//help button to change from SPLASH to HELP screen
 var helpButton = new Button({
     x: 216,
     y: 330,
@@ -280,6 +461,7 @@ var helpButton = new Button({
         helpScreen();
     }
 });
+
 
 var splash = function() {
     background(150, 0, 0);
@@ -295,10 +477,18 @@ var splash = function() {
     helpButton.draw();
 };
 
+
 mouseClicked = function() {
-    if (currentScene === 0) //if the current scene is splash make startButton clickable
-        {startButton.handleMouseClick();}
-        {helpButton.handleMouseClick();}
+    if (currentScene === 0) {//if the current scene is splash make startButton clickable
+        startButton.handleMouseClick();
+        helpButton.handleMouseClick();
+    }
+    else if (currentScene === 2) {
+        helpStartButton.handleMouseClick();
+    }
 };
 
+
 splash();
+
+
