@@ -101,7 +101,7 @@ var drawShirt = function(bitmojiX, bitmojiY, bitSize) {
     rect(bitmojiX-(bitSize/150*3), bitmojiY+(bitSize/150*77), bitSize/150*8, bitSize/150*2); //cross X
     fill(0, 0, 0);
     textSize(bitSize/150*42);
-    text("AFV", bitmojiX-(bitSize/150*35), bitmojiY+(bitSize/150*138)); //text
+    text("AFV", bitmojiX-(bitSize/150*35), bitmojiY+(bitSize/150*105)); //text
 };
 
 var drawBitmoji = function(bitmojiX, bitmojiY, bitSize){
@@ -366,7 +366,7 @@ var gameCoin = function(xPos, yPos, size) {
     ellipse(xPos, yPos, 45*size/100, 45*size/100); //inner part of coin
     fill(0, 0, 0);
     textSize(35*size/100);
-    text("$",xPos - 9*size/100, yPos - 21*size/100); //text shown on top of coin
+    text("$",xPos - 9*size/100, yPos + -19*size/100); //text shown on top of coin
 };
 /*for some reason coin only works after using buttons on splash screen, otherwise the text will be outside of it*/
 
@@ -447,7 +447,7 @@ var startButton = new Button({
     label: "START",
     onClick: function() {
         currentScene = 1;
-        gameScreen();
+        //gameScreen();
     }
 });
 
@@ -458,7 +458,7 @@ var helpButton = new Button({
     label: "HELP",
     onClick: function() {
         currentScene = 2;
-        helpScreen();
+        //helpScreen();
     }
 });
 
@@ -467,8 +467,8 @@ var splash = function() {
     background(150, 0, 0);
     textSize(35);
     fill(255, 255, 255);
-    text("Final Project", 110, 60);
-    text('Click "Start" to play', 60, 315);
+    text("Final Project", 110, 25);
+    text('Click "Start" to play', 60, 278);
     noStroke();
     rect(15, 87, 371, 175);
     drawBitmoji(105, 136, 100);
@@ -488,7 +488,43 @@ mouseClicked = function() {
     }
 };
 
+var extraLife = function(xPos, yPos, size) {
+    image(getImage("cute/Heart"), xPos, yPos, 50*size/100, 65*size/100);
+};
 
-splash();
+var coinX = [];
+var coinY = [];
+var lifeX = [];
+var lifeY = [];
+var speed = [];
 
 
+for (var i = 0; i < 10; i++) {
+    coinX.push(random(30, 370));
+    coinY.push(i * -300);
+    lifeX.push(random(30, 370));
+    lifeY.push(i * -1187);
+    speed.push(1);
+}
+
+//var yPos = 0;
+draw = function() {
+    if (currentScene === 0) {
+        splash();
+    }
+    else if (currentScene === 1) {
+        gameScreen();
+        for (var a = 0; a < coinY.length; a++) {
+            gameCoin(coinX[a], coinY[a], 50);
+            extraLife(lifeX[a], lifeY[a], 50);
+            coinY[a] += speed[a];
+            lifeY[a] += speed[a];
+            if (lifeY[a] > 350) {
+                lifeY[a] = 350;
+            }
+        }
+    }
+    else {
+        helpScreen();
+    }
+};
