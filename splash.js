@@ -1,4 +1,5 @@
 var currentScene = 0;
+var currentLevel = 1;
 
 
 //Khan button class    
@@ -370,6 +371,28 @@ var gameCoin = function(xPos, yPos, size) {
 };
 /*for some reason coin only works after using buttons on splash screen, otherwise the text will be outside of it*/
 
+//Defines heart for extra life
+var extraLife = function(xPos, yPos, size) {
+    image(getImage("cute/Heart"), xPos, yPos, 50*size/100, 65*size/100);
+};
+
+//Defines game barrel (used in game screen)
+var gameBarrel = function(xPos, yPos, size) {
+    //NOTE: center is at the top left of the barrel
+    stroke(0, 0, 0);
+    fill(158, 87, 0);
+    rect(xPos, yPos, 90*size/100, 60*size/100, 20*size/100);
+    line(xPos + 5*size/100, yPos + 5*size/100, xPos + 85*size/100, yPos + 5*size/100);
+    line(xPos, yPos + 15*size/100, xPos + 90*size/100, yPos + 15*size/100);
+    line(xPos, yPos + 30*size/100, xPos + 90*size/100, yPos + 30*size/100);
+    line(xPos, yPos + 45*size/100, xPos + 90*size/100, yPos + 45*size/100);
+    line(xPos + 5*size/100, yPos + 55*size/100, xPos + 85*size/100, yPos + 55*size/100);
+    noStroke();
+    textSize(40*size/100);
+    fill(255, 0, 0);
+    text("TNT",xPos + 6*size/100, yPos + 15.5*size/100, 90*size/100, 60*size/100);
+};
+
 
 //Defines the different types of clouds that will move across the sky
 var cloudType1 = function(xPos, yPos) {
@@ -488,10 +511,8 @@ mouseClicked = function() {
     }
 };
 
-var extraLife = function(xPos, yPos, size) {
-    image(getImage("cute/Heart"), xPos, yPos, 50*size/100, 65*size/100);
-};
-
+var barrelX = [];
+var barrelY = [];
 var coinX = [];
 var coinY = [];
 var lifeX = [];
@@ -500,10 +521,12 @@ var speed = [];
 
 
 for (var i = 0; i < 10; i++) {
-    coinX.push(random(30, 370));
-    coinY.push(i * -300);
-    lifeX.push(random(30, 370));
+    coinX.push(random(50, 350));
+    coinY.push(i * (random(-250, -50)));
+    lifeX.push(random(50, 350));
     lifeY.push(i * -1187);
+    barrelX.push(random(50, 300));
+    barrelY.push(i * -200);
     speed.push(1);
 }
 
@@ -515,12 +538,31 @@ draw = function() {
     else if (currentScene === 1) {
         gameScreen();
         for (var a = 0; a < coinY.length; a++) {
+            gameBarrel(barrelX[a], barrelY[a], 50);
             gameCoin(coinX[a], coinY[a], 50);
             extraLife(lifeX[a], lifeY[a], 50);
-            coinY[a] += speed[a];
-            lifeY[a] += speed[a];
-            if (lifeY[a] > 350) {
+            if (currentLevel === 1) { //if level 1, speed is 1
+                barrelY[a] += speed[a];
+                coinY[a] += speed[a];
+                lifeY[a] += speed[a];
+            }
+            else { //after certain event speed increases 
+                barrelY[a] += speed;
+                coinY[a] += speed;
+                lifeY[a] += speed;
+            }
+            
+            if (lifeY[a] > 350) { //if heart gets to the floor it stays in the floor
                 lifeY[a] = 350;
+            }
+            
+            if (barrelY[a] > 425) { //create cycle for barrels
+                barrelY[a] = -300;
+            }
+            
+            if (coinY[5] > 400) { //event to make speed increase
+                currentLevel = 2;
+                speed = 2;
             }
         }
     }
