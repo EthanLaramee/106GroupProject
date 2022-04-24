@@ -1,8 +1,22 @@
-var currentScene = 0;
-var currentLevel = 1;
+var currentScene = 0; 
+/*  0 = splash
+    1 = game
+    2 = help
+    else = customize
+*/
+var direction = 0; //used to tell which way player is facing in game
+/*  0 = right
+    1 = left
+*/
+
+//variables for customizing player
+var shirtColor = color(255, 0, 0);
+var pantsColor = color(0, 0, 255);
+var hairColor = color(153, 92, 0);
 
 
-//Khan button class    
+
+//Khan button class
 {
 var Button = function(config) {
     this.x = config.x || 0;
@@ -19,7 +33,7 @@ Button.prototype.draw = function() {
     fill(0, 0, 0);
     textSize(19);
     textAlign(LEFT, TOP);
-    text(this.label, this.x+25, this.y+this.height/4);
+    text(this.label, this.x+20, this.y+this.height/4);
 };
 
 Button.prototype.isMouseInside = function() {
@@ -35,6 +49,42 @@ Button.prototype.handleMouseClick = function() {
     }
 };
 }
+
+//Edited Khan button class for customization buttons
+//(A smaller button with centered text)
+{
+var SmallButton = function(config) {
+    this.x = config.x || 0;
+    this.y = config.y || 0;
+    this.width = config.width || 100;
+    this.height = config.height || 50;
+    this.label = config.label || "Click";
+    this.onClick = config.onClick || function() {};
+};
+
+SmallButton.prototype.draw = function() {
+    fill(255, 255, 255);
+    rect(this.x, this.y, this.width, this.height, 5);
+    fill(0, 0, 0);
+    textSize(19);
+    textAlign(CENTER, TOP);
+    text(this.label, this.x+50, this.y+this.height/4);
+};
+
+SmallButton.prototype.isMouseInside = function() {
+    return mouseX > this.x &&
+           mouseX < (this.x + this.width) &&
+           mouseY > this.y &&
+           mouseY < (this.y + this.height);
+};
+
+SmallButton.prototype.handleMouseClick = function() {
+    if (this.isMouseInside()) {
+        this.onClick();
+    }
+};
+}
+
 
 //Abel's Bitmoji Code
 {
@@ -102,7 +152,7 @@ var drawShirt = function(bitmojiX, bitmojiY, bitSize) {
     rect(bitmojiX-(bitSize/150*3), bitmojiY+(bitSize/150*77), bitSize/150*8, bitSize/150*2); //cross X
     fill(0, 0, 0);
     textSize(bitSize/150*42);
-    text("AFV", bitmojiX-(bitSize/150*35), bitmojiY+(bitSize/150*105)); //text
+    text("AFV", bitmojiX-(bitSize/150*35), bitmojiY+(bitSize/150*100)); //text
 };
 
 var drawBitmoji = function(bitmojiX, bitmojiY, bitSize){
@@ -262,9 +312,9 @@ var drawBitmojiEthan = function(bitmojiX,bitmojiY,bitmojiSize) {
 }
 
 
-//Defines game character MARIO (right facing)
+//Defines game character with color changing options (right facing)
 {
-var marioCharacterFace = function (xPos, yPos, size) {
+var rightMarioFace = function (xPos, yPos, size, hairColor) {
     noStroke();
     fill(255, 210, 160); //skin tone of character
     rect(xPos, yPos, 150*size/100, 125*size/100); //face
@@ -272,7 +322,7 @@ var marioCharacterFace = function (xPos, yPos, size) {
     rect(xPos - 25*size/100, yPos + 25*size/100, 25*size/100, 50*size/100); //ears
     rect(xPos + 150*size/100, yPos + 25*size/100, 50*size/100, 50*size/100); //nose
     rect(xPos + 200*size/100, yPos + 50*size/100, 25*size/100, 25*size/100);
-    fill(153, 92, 0); //hair color of character
+    fill(hairColor); //hair color of character
     rect(xPos + 100*size/100, yPos + 75*size/100, 100*size/100,25*size/100); //mustache
     rect(xPos + 125*size/100, yPos + 50*size/100, 25*size/100, 25*size/100);
     rect(xPos - 25*size/100, yPos, 75*size/100, 25*size/100); //head hair
@@ -284,16 +334,16 @@ var marioCharacterFace = function (xPos, yPos, size) {
     rect(xPos + 100*size/100, yPos, 25*size/100, 50*size/100); //eyes
 };
 
-var marioCharacterHat = function (xPos, yPos, size) {
+var rightMarioHat = function (xPos, yPos, size, shirtColor) {
     noStroke();
-    fill(255, 0, 0);
+    fill(shirtColor);
     rect(xPos - 25*size/100, yPos - 25*size/100, 225*size/100, 25*size/100);
     rect(xPos, yPos - 50*size/100, 125*size/100, 25*size/100);
 };
 
-var marioCharacterShirt = function (xPos, yPos, size) {
+var rightMarioShirt = function (xPos, yPos, size, shirtColor) {
     noStroke();
-    fill(255, 0, 0);
+    fill(shirtColor);
     rect(xPos - 25*size/100, yPos + 125*size/100, 25*size/100, 100*size/100); //left sleeve
     rect(xPos, yPos + 125*size/100, 25*size/100, 75*size/100);
     rect(xPos - 50*size/100, yPos + 150*size/100, 25*size/100, 50*size/100);
@@ -302,13 +352,99 @@ var marioCharacterShirt = function (xPos, yPos, size) {
     rect(xPos + 125*size/100, yPos + 150*size/100, 75*size/100, 50*size/100); //right sleeve
     rect(xPos + 200*size/100, yPos + 175*size/100, 25*size/100, 25*size/100);
     rect(xPos + 150*size/100, yPos + 200*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 125*size/100, yPos + 125*size/100, 50*size/100, 25*size/100);
 };
 
-var marioCharacterJeans = function(xPos, yPos, size) {
+var rightMarioJeans = function(xPos, yPos, size, pantColor) {
     noStroke();
-    fill(0, 0, 255);
+    fill(pantColor);
     rect(xPos + 25*size/100, yPos + 125*size/100, 25*size/100, 75*size/100); //straps
-    rect(xPos + 100*size/100, yPos + 150*size/100, 25*size/100, 50*size/100);
+    rect(xPos + 100*size/100, yPos + 125*size/100, 25*size/100, 75*size/100);
+    rect(xPos + 50*size/100, yPos + 175*size/100, 50*size/100, 25*size/100);
+    rect(xPos, yPos + 200*size/100, 150*size/100, 75*size/100); //legs
+    rect(xPos + 25*size/100, yPos + 125*size/100, 25*size/100, 75*size/100);
+    rect(xPos - 25*size/100, yPos + 250*size/100, 75*size/100, 50*size/100);
+    rect(xPos + 100*size/100, yPos + 250*size/100, 75*size/100, 50*size/100);
+    fill(255, 255, 0); //pants buttons
+    rect(xPos + 25*size/100, yPos + 200*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 100*size/100, yPos + 200*size/100, 25*size/100, 25*size/100);
+};
+
+var rightMarioHands = function(xPos, yPos, size) {
+    noStroke();
+    fill(255, 210, 160); //skintone of character
+    rect(xPos - 75*size/100, yPos + 200*size/100, 50*size/100, 75*size/100); //left hand
+    rect(xPos - 25*size/100, yPos + 225*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 175*size/100, yPos + 200*size/100, 50*size/100, 75*size/100); //right hand
+    rect(xPos + 150*size/100, yPos + 225*size/100, 25*size/100, 25*size/100);
+};
+
+var rightMarioShoes = function(xPos, yPos, size) {
+    noStroke();
+    fill(140, 75, 0);
+    rect(xPos - 50*size/100, yPos + 300*size/100, 75*size/100, 50*size/100); //left shoe
+    rect(xPos - 75*size/100, yPos + 325*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 125*size/100, yPos + 300*size/100, 75*size/100, 50*size/100); //right shoe
+    rect(xPos + 200*size/100, yPos + 325*size/100, 25*size/100, 25*size/100);
+};
+
+var rightMario = function(xPos, yPos, size) {
+    //NOTE: center of character is at back of neck
+    rightMarioFace(xPos, yPos, size, hairColor);
+    rightMarioHat(xPos, yPos, size, shirtColor);
+    rightMarioShirt(xPos, yPos, size, shirtColor);
+    rightMarioJeans(xPos, yPos, size, pantsColor);
+    rightMarioHands(xPos, yPos, size);
+    rightMarioShoes(xPos, yPos, size);
+}; //combines character parts
+} // rightMario(xPos, yPos, size)
+{
+var leftMarioFace = function (xPos, yPos, size) {
+    noStroke();
+    fill(255, 210, 160); //skin tone of character
+    rect(xPos, yPos, 150*size/100, 125*size/100); //face
+    //rect(xPos + 50*size/100, yPos + 100*size/100, 25*size/100, 25*size/100); //chin
+    rect(xPos + 150*size/100, yPos + 25*size/100, 25*size/100, 50*size/100); //ears
+    rect(xPos - 50*size/100, yPos + 25*size/100, 50*size/100, 50*size/100); //nose
+    rect(xPos - 75*size/100, yPos + 50*size/100, 25*size/100, 25*size/100);
+    fill(hairColor); //hair color of character
+    rect(xPos + -50*size/100, yPos + 75*size/100, 100*size/100,25*size/100); //mustache
+    rect(xPos, yPos + 50*size/100, 25*size/100, 25*size/100); //top mustache
+    rect(xPos + 100*size/100, yPos, 75*size/100, 25*size/100); //head hair
+    rect(xPos + 175*size/100, yPos + 25*size/100, 25*size/100, 75*size/100); 
+    rect(xPos + 150*size/100, yPos + 75*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 125*size/100, yPos + 25*size/100, 25*size/100, 50*size/100); //sideburns
+    rect(xPos + 100*size/100, yPos + 50*size/100, 25*size/100, 25*size/100);
+    fill(0, 0, 0); //eye color of character
+    rect(xPos + 25*size/100, yPos, 25*size/100, 50*size/100); //eyes
+};
+
+var leftMarioHat = function (xPos, yPos, size) {
+    noStroke();
+    fill(shirtColor);
+    rect(xPos - 50*size/100, yPos - 25*size/100, 225*size/100, 25*size/100);
+    rect(xPos + 25*size/100, yPos - 50*size/100, 125*size/100, 25*size/100);
+};
+
+var leftMarioShirt = function (xPos, yPos, size) {
+    noStroke();
+    fill(shirtColor);
+    rect(xPos - 25*size/100, yPos + 125*size/100, 25*size/100, 100*size/100); //left sleeve
+    rect(xPos, yPos + 125*size/100, 25*size/100, 75*size/100);
+    rect(xPos - 50*size/100, yPos + 150*size/100, 25*size/100, 50*size/100);
+    rect(xPos - 75*size/100, yPos + 175*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 50*size/100, yPos + 125*size/100, 75*size/100, 50*size/100); //chest
+    rect(xPos + 125*size/100, yPos + 150*size/100, 75*size/100, 50*size/100); //right sleeve
+    rect(xPos + 200*size/100, yPos + 175*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 150*size/100, yPos + 200*size/100, 25*size/100, 25*size/100);
+    rect(xPos + 125*size/100, yPos + 125*size/100, 50*size/100, 25*size/100);
+};
+
+var leftMarioJeans = function(xPos, yPos, size) {
+    noStroke();
+    fill(pantsColor);
+    rect(xPos + 25*size/100, yPos + 125*size/100, 25*size/100, 75*size/100); //straps
+    rect(xPos + 100*size/100, yPos + 125*size/100, 25*size/100, 75*size/100);
     rect(xPos + 50*size/100, yPos + 175*size/100, 50*size/100, 25*size/100);
     rect(xPos, yPos + 200*size/100, 150*size/100, 75*size/100); //legs
     rect(xPos + 25*size/100, yPos + 125*size/100, 25*size/100, 75*size/100);
@@ -319,7 +455,7 @@ var marioCharacterJeans = function(xPos, yPos, size) {
     rect(xPos + 100*size/100, yPos + 200*size/100, 25*size/100, 25*size/100);
 };
 
-var marioCharacterHands = function(xPos, yPos, size) {
+var leftMarioHands = function(xPos, yPos, size) {
     fill(255, 210, 160); //skintone of character
     rect(xPos - 75*size/100, yPos + 200*size/100, 50*size/100, 75*size/100); //left hand
     rect(xPos - 25*size/100, yPos + 225*size/100, 25*size/100, 25*size/100);
@@ -327,7 +463,7 @@ var marioCharacterHands = function(xPos, yPos, size) {
     rect(xPos + 150*size/100, yPos + 225*size/100, 25*size/100, 25*size/100);
 };
 
-var marioCharacterShoes = function(xPos, yPos, size) {
+var leftMarioShoes = function(xPos, yPos, size) {
     noStroke();
     fill(140, 75, 0);
     rect(xPos - 50*size/100, yPos + 300*size/100, 75*size/100, 50*size/100); //left shoe
@@ -336,21 +472,20 @@ var marioCharacterShoes = function(xPos, yPos, size) {
     rect(xPos + 200*size/100, yPos + 325*size/100, 25*size/100, 25*size/100);
 };
 
-//Combine character parts together
-var marioCharacter = function(xPos, yPos, size) {
+var leftMario = function(xPos, yPos, size) {
     //NOTE: center of character is at back of neck
-    marioCharacterFace(xPos, yPos, size);
-    marioCharacterHat(xPos, yPos, size);
-    marioCharacterShirt(xPos, yPos, size);
-    marioCharacterJeans(xPos, yPos, size);
-    marioCharacterHands(xPos, yPos, size);
-    marioCharacterShoes(xPos, yPos, size);
-}; 
-}
+    leftMarioFace(xPos, yPos, size);
+    leftMarioHat(xPos, yPos, size);
+    leftMarioShirt(xPos, yPos, size);
+    leftMarioJeans(xPos, yPos, size);
+    leftMarioHands(xPos, yPos, size);
+    leftMarioShoes(xPos, yPos, size);
+}; //combines character parts
+} // leftMario(xPos, yPos, size)
 
 
 //Defines arrow shape, which is resizable (used on help screen)
-var horizontalArrow = function(xPos, yPos, size) {
+var virticalArrow = function(xPos, yPos, size) {
     noStroke();
     fill(0, 0, 0);
     triangle(xPos - 82*size/100, yPos + 100*size/100, xPos - 70*size/100, yPos + 120*size/100*size/100, xPos - 58*size/100, yPos + 100*size/100);
@@ -367,30 +502,30 @@ var gameCoin = function(xPos, yPos, size) {
     ellipse(xPos, yPos, 45*size/100, 45*size/100); //inner part of coin
     fill(0, 0, 0);
     textSize(35*size/100);
-    text("$",xPos - 9*size/100, yPos + -19*size/100); //text shown on top of coin
+    text("$",xPos - 9*size/100, yPos - 21*size/100); //text shown on top of coin
 };
 /*for some reason coin only works after using buttons on splash screen, otherwise the text will be outside of it*/
 
-//Defines heart for extra life
-var extraLife = function(xPos, yPos, size) {
-    image(getImage("cute/Heart"), xPos, yPos, 50*size/100, 65*size/100);
-};
-
-//Defines game barrel (used in game screen)
+//Defines barrel that user must avoid, otherwise will lose a life.
 var gameBarrel = function(xPos, yPos, size) {
-    //NOTE: center is at the top left of the barrel
+    
     stroke(0, 0, 0);
     fill(158, 87, 0);
     rect(xPos, yPos, 90*size/100, 60*size/100, 20*size/100);
-    line(xPos + 5*size/100, yPos + 5*size/100, xPos + 85*size/100, yPos + 5*size/100);
-    line(xPos, yPos + 15*size/100, xPos + 90*size/100, yPos + 15*size/100);
-    line(xPos, yPos + 30*size/100, xPos + 90*size/100, yPos + 30*size/100);
-    line(xPos, yPos + 45*size/100, xPos + 90*size/100, yPos + 45*size/100);
-    line(xPos + 5*size/100, yPos + 55*size/100, xPos + 85*size/100, yPos + 55*size/100);
+    line(xPos + 6*size/100, yPos + 5*size/100, xPos + 83*size/100, yPos + 5*size/100);
+    line(xPos + 2*size/100, yPos + 15*size/100, xPos + 89*size/100, yPos + 15*size/100);
+    line(xPos + 1*size/100, yPos + 30*size/100, xPos + 89*size/100, yPos + 30*size/100);
+    line(xPos + 2*size/100, yPos + 45*size/100, xPos + 89*size/100, yPos + 45*size/100);
+    line(xPos + 6*size/100, yPos + 55*size/100, xPos + 85*size/100, yPos + 55*size/100);
     noStroke();
     textSize(40*size/100);
     fill(255, 0, 0);
-    text("TNT",xPos + 6*size/100, yPos + 15.5*size/100, 90*size/100, 60*size/100);
+    text("TNT",xPos + 6*size/100, yPos + 6*size/100, 90*size/100, 60*size/100);
+};
+
+//Defines heart that user can collect as an extra life in the game.
+var lifeHeart = function(xPos, yPos, size) {
+    image(getImage("cute/Heart"), xPos, yPos, 50*size/100, 65*size/100);
 };
 
 
@@ -435,14 +570,156 @@ var gameScreen = function() {
     //walls will act as bounds to our character later on
 };
 
-//start button to change from HELP screen to GAME screen
-var helpStartButton = new Button({
+
+var gameOverHome = new Button({
+    x: 280,
+    y: 100,
+    label: "HOME",
+    onClick: function() {
+        currentScene = 0;
+    }
+});
+
+var gameOverRetry = new Button({
+    
+});
+
+var gameOverScreen = function() {
+    
+};
+
+
+
+//The buttons used in the Customize Screen
+{
+//Home button to change from CUSTOMIZE screen to SPLASH screen
+var customizeHomeButton = new Button({
+    x: 280,
+    y: 5,
+    label: "RETURN",
+    onClick: function() {
+        currentScene = 0;
+    }
+});
+
+var redShirtButton = new SmallButton({
+    x: 20,
+    y: 195,
+    label: "RED",
+    onClick: function() {
+        shirtColor = color(255, 0, 0);
+    }
+});
+
+var greenShirtButton = new SmallButton({
+    x: 20,
+    y: 260,
+    label: "GREEN",
+    onClick: function() {
+        shirtColor = color(20, 168, 0);
+    }
+});
+
+var blackShirtButton = new SmallButton({
+    x: 20,
+    y: 325,
+    label: "BLACK",
+    onClick: function() {
+        shirtColor = color(0, 0, 0);
+    }
+});
+
+var bluePantsButton = new SmallButton({
+    x: 150,
+    y: 195,
+    label: "BLUE",
+    onClick: function() {
+        pantsColor = color(0, 0, 255);
+    }
+});
+
+var tanPantsButton = new SmallButton({
+    x: 150,
+    y: 260,
+    label: "TAN",
+    onClick: function() {
+        pantsColor = color(194, 142, 0);
+    }
+});
+
+var blackPantsButton = new SmallButton({
+    x: 150,
+    y: 325,
+    label: "BLACK",
+    onClick: function() {
+        pantsColor = color(0, 0, 0);
+    }
+});
+
+var brownHairButton = new SmallButton({
+    x: 280,
+    y: 195,
+    label: "BROWN",
+    onClick: function() {
+        hairColor = color(153, 92, 0);
+    }
+});
+
+var blondeHairButton = new SmallButton({
+    x: 280,
+    y: 260,
+    label: "BLONDE",
+    onClick: function() {
+        hairColor = color(214, 200, 45);
+    }
+});
+
+var blackHairButton = new SmallButton({
+    x: 280,
+    y: 325,
+    label: "BLACK",
+    onClick: function() {
+        hairColor = color(0, 0, 0);
+    }
+});
+}
+
+var customizeScreen = function() {
+    background(174, 236, 245);
+    rightMario(108,30,31);
+    textSize(21);
+    fill(0, 0, 0);
+    text("Shirt",10,155,120,40);
+    text("Pants",140,155,120,40);
+    text("Hair",270,155,120,40);
+    noStroke();
+    fill(shirtColor);
+    rect(10,180,120,210);
+    fill(pantsColor);
+    rect(140,180,120,210);
+    fill(hairColor);
+    rect(270,180,120,210);
+    customizeHomeButton.draw();
+    redShirtButton.draw();
+    greenShirtButton.draw();
+    blackShirtButton.draw();
+    bluePantsButton.draw();
+    tanPantsButton.draw();
+    blackPantsButton.draw();
+    brownHairButton.draw();
+    blondeHairButton.draw();
+    blackHairButton.draw();
+    
+};
+
+
+//Home button to change from HELP screen to SPLASH screen
+var helpHomeButton = new Button({
     x: 65,
     y: 320,
-    label: "START",
+    label: "RETURN",
     onClick: function() {
-        currentScene = 1;
-        gameScreen();
+        currentScene = 0;
     }
 });
 
@@ -455,49 +732,59 @@ var helpScreen = function() {
     textSize(30);
     text("HOW TO PLAY:",20,15);
     textSize(15);
-    text("Using the arrow keys on your keyboard avoid the falling barrels and collect the coins. For every coin you collect you earn 5 points, but if you hit a barrel you will lose a life. Be careful, because you only have 3 lives! When you lose all of your lives the game will end and you will have the option to retry or return to the menu.", 30,75,230,195);
-    horizontalArrow(400,90,100);
-    marioCharacter(305,255,35);
+    text("Using the arrow keys on your keyboard avoid the falling barrels and collect the coins. For every coin you collect you earn 5 points, but if you hit a barrel you will lose a life. Be careful, because you only have 3 lives, along with some extra lives. When you lose all of your lives the game will end and you will have the option to retry or return to the menu.", 30,75,230,195);
+    virticalArrow(400,90,100);
+    rightMario(305,255,35);
     gameCoin(330,125,100);
-    helpStartButton.draw();
+    helpHomeButton.draw();
 };
+
 
 
 //start button to change from SPLASH to GAME screen
 var startButton = new Button({
-    x: 38,
-    y: 330,
+    x: 125,
+    y: 225,
     label: "START",
     onClick: function() {
         currentScene = 1;
-        //gameScreen();
     }
 });
 
 //help button to change from SPLASH to HELP screen
 var helpButton = new Button({
-    x: 216,
-    y: 330,
+    x: 125,
+    y: 280,
     label: "HELP",
     onClick: function() {
         currentScene = 2;
-        //helpScreen();
+    }
+});
+
+//customize button to change from SPLASH to CUSTOIZE screen
+var customizeButton = new Button({
+    x: 125,
+    y: 335,
+    label:"CUSTOMIZE",
+    onClick: function() {
+        currentScene = 3;
     }
 });
 
 
 var splash = function() {
+    noStroke();
     background(150, 0, 0);
     textSize(35);
     fill(255, 255, 255);
-    text("Final Project", 110, 25);
-    text('Click "Start" to play', 60, 278);
+    text("Barrel Dodger", 90, 10);
     noStroke();
-    rect(15, 87, 371, 175);
-    drawBitmoji(105, 136, 100);
-    drawBitmojiEthan(285, 164, 82);
+    rect(0,221,width,height);
+    drawBitmoji(60, 280, 84);
+    drawBitmojiEthan(340, 301, 61);
     startButton.draw();
     helpButton.draw();
+    customizeButton.draw();
 };
 
 
@@ -505,68 +792,231 @@ mouseClicked = function() {
     if (currentScene === 0) {//if the current scene is splash make startButton clickable
         startButton.handleMouseClick();
         helpButton.handleMouseClick();
+        customizeButton.handleMouseClick();
     }
     else if (currentScene === 2) {
-        helpStartButton.handleMouseClick();
+        helpHomeButton.handleMouseClick();
+    }
+    else if (currentScene === 3) {
+        customizeHomeButton.handleMouseClick();
+        redShirtButton.handleMouseClick();
+        greenShirtButton.handleMouseClick();
+        blackShirtButton.handleMouseClick();
+        bluePantsButton.handleMouseClick();
+        tanPantsButton.handleMouseClick();
+        blackPantsButton.handleMouseClick();
+        brownHairButton.handleMouseClick();
+        blondeHairButton.handleMouseClick();
+        blackHairButton.handleMouseClick();
     }
 };
 
-var barrelX = [];
-var barrelY = [];
-var coinX = [];
-var coinY = [];
-var lifeX = [];
-var lifeY = [];
-var speed = [];
 
 
-for (var i = 0; i < 10; i++) {
-    coinX.push(random(50, 350));
-    coinY.push(i * (random(-250, -50)));
-    lifeX.push(random(50, 350));
-    lifeY.push(i * -1187);
-    barrelX.push(random(50, 300));
-    barrelY.push(i * -200);
-    speed.push(1);
+
+
+//defines Coin constructor for "coins"
+{
+var Coin = function(x, y) {
+    this.x = x;
+    this.y = y;
+};
+
+Coin.prototype.draw = function() {
+    gameCoin(this.x, this.y, 50);
+};
 }
 
-//var yPos = 0;
+//defines Lives constructor for "extraLives"
+{
+var Lives = function(x, y) {
+    this.x = x;
+    this.y = y;
+};
+
+Lives.prototype.draw = function() {
+    lifeHeart(this.x, this.y, 50);
+};
+}
+
+//defines Barrel constructor for "barrels"
+{
+var Barrel = function(x, y) {
+    this.x = x;
+    this.y = y;
+};
+
+Barrel.prototype.draw = function() {
+    gameBarrel(this.x, this.y, 75);
+};
+}
+
+
+
+
+var possibleCoins = 10;
+var coins = [];
+var extraLives = [];
+var barrels = [];
+var speed = []; //used later in game to make barrels fall faster and harder for player
+var currentLives = 3;
+
+for (var i = 0; i < possibleCoins; i++) {
+    coins.push(new Coin(random(30,370),(i * -225)));
+    extraLives.push(new Lives(random(30, 370),(-800 - 500 * i * i)));//by using i*i we make the hearts spread further apart, so you get less extra lives later on in the game making it harder
+    barrels.push(new Barrel(random(30,370),(i * -300)));
+    speed.push(round(random(1,2)));
+}
+
+
+
+
+
+
+//define game character using objects
+{
+var PlayerCharacter = function(x, y, size) {
+    this.x = x;
+    this.y = y;
+    this.score = 0;
+    this.size = size;
+    this.speed = 1;
+    this.currentLives = 3;
+}; //PlayerCharcater class cuntion
+
+PlayerCharacter.prototype.draw = function() {
+    this.x = constrain(this.x, 35, 340);
+    if (direction === 0) {
+        rightMario(this.x, this.y, this.size);
+    }
+    else {
+        leftMario(this.x, this.y, this.size);
+    }
+};
+
+PlayerCharacter.prototype.left = function() {
+    this.x -= this.speed;
+};
+
+PlayerCharacter.prototype.right = function() {
+    this.x += this.speed;
+};
+
+
+PlayerCharacter.prototype.checkForCoinGrab = function (coins) {
+    if (coins.x > this.x - 11 && coins.x < this.x + 34 && coins.y < this.y + 26 && coins.y > this. y - 34) {
+        this.score += 5;
+        coins.x = 600;
+    } //When hit, player gains 5 points from score and moves off screen
+};
+
+PlayerCharacter.prototype.checkForBarrelGrab = function (barrels) {  
+    if (barrels.x > (this.x - 11) && barrels.x < (this.x + 34) && barrels.y < (this.y + 26) && barrels.y > (this.y - 34)) {
+        this.score -= 10;
+        currentLives -= 1;
+        barrels.x = 600;
+    } //When hit, player loses 10 points, loses 1 life, and moves off screen
+};
+
+PlayerCharacter.prototype.checkForExtraLifeGrab = function (extraLives) {  
+    if (extraLives.x > this.x - 11 && extraLives.x < this.x + 34 && extraLives.y < this.y + 26 && extraLives.y > this.y - 34) {
+        currentLives += 1;
+        extraLives.x = 600;
+    } //collects, moves off screen, and gives extra live to "currentLives" variable
+};
+
+
+}
+
+var player = new PlayerCharacter(200,330,15); //Game Character
+
+
+
+
+//Character's position in game
+var splashRollerXPos = [0,110,250,-150];
+
+
 draw = function() {
     if (currentScene === 0) {
         splash();
+        for (var i = 0; i < 4; i++) {
+            splashRollerXPos[i] += 1;
+            if (splashRollerXPos[i] === 430) {
+                splashRollerXPos[i] = -120;
+            }
+        }
+        rightMario(splashRollerXPos[0], 85, 32);
+        gameCoin(splashRollerXPos[1] + 50, 135, 220);
+        gameBarrel(splashRollerXPos[2], 94, 130);
+        image(getImage("space/healthheart"),splashRollerXPos[3], 85, 100, 100);
     }
     else if (currentScene === 1) {
         gameScreen();
-        for (var a = 0; a < coinY.length; a++) {
-            gameBarrel(barrelX[a], barrelY[a], 50);
-            gameCoin(coinX[a], coinY[a], 50);
-            extraLife(lifeX[a], lifeY[a], 50);
-            if (currentLevel === 1) { //if level 1, speed is 1
-                barrelY[a] += speed[a];
-                coinY[a] += speed[a];
-                lifeY[a] += speed[a];
+        if (keyIsPressed && keyCode === RIGHT) {
+            direction = 0;
+            player.right();
+        }  
+        else if (keyIsPressed && keyCode === LEFT) {
+            direction = 1;
+            player.left();
+        }
+        /*
+        else if (keyIsPressed && keyCode === 16 && (keyCode === LEFT || keyCode === RIGHT)) {
+            player.speed = 2;
+        }
+        else if (keyReleased && keyCode === 16) {
+                player.speed = 1;
+        }
+        */
+        
+        player.draw();
+        
+        for (var j = 0; j < possibleCoins; j++) {
+            coins[j].draw();
+            player.checkForCoinGrab(coins[j]);
+            barrels[j].draw();
+            player.checkForBarrelGrab(barrels[j]);
+            extraLives[j].draw();
+            player.checkForExtraLifeGrab(extraLives[j]);
+            if (extraLives[j].y > 350) {
+                extraLives[j].y = 350; //extra lives do not fall off of the screen, they stop
             }
-            else { //after certain event speed increases 
-                barrelY[a] += speed;
-                coinY[a] += speed;
-                lifeY[a] += speed;
+            if (barrels[3].y > 450) {
+                barrels[j].y += 1.5 * speed[j];
+                coins[j].y += 1;
+                extraLives[j].y += 1;
             }
-            
-            if (lifeY[a] > 350) { //if heart gets to the floor it stays in the floor
-                lifeY[a] = 350;
-            }
-            
-            if (barrelY[a] > 425) { //create cycle for barrels
-                barrelY[a] = -300;
-            }
-            
-            if (coinY[5] > 400) { //event to make speed increase
-                currentLevel = 2;
-                speed = 2;
+            else {
+                barrels[j].y += speed[j];
+                coins[j].y += 1;
+                extraLives[j].y += 1;
             }
         }
+        
+        stroke(0, 0, 0);
+        fill(255, 255, 255);
+        rect(0, 0, width, 30);
+        noStroke();
+        textSize(20);
+        fill(0, 0, 0);
+        text("Score: " + player.score, 30, 3);
+        text("Lives: ", 175, 3);
+        for (var k = 0; k < currentLives; k++) {
+            lifeHeart(235 + 26 * k, -2, 50);
+        }
+        if (currentLives === 0) {
+            currentScene = 4;
+        }
     }
-    else {
+    else if (currentScene ===2) {
         helpScreen();
     }
+    else if (currentScene === 3) {
+        customizeScreen();
+    }
+    else if (currentScene === 4) {
+        gameOverScreen();
+    }
 };
+
