@@ -1019,12 +1019,12 @@ draw = function() {
                 coins[j].y += speed[j] * 1.5;
                 extraLives[j].y += speed[j] * 1.5;
             }
-            else if (currentLevel === 2) { //if score > 20
+            if (currentLevel === 2) { //if score > 20
                 barrels[j].y += 2;
                 coins[j].y += 2;
                 extraLives[j].y += 1;
             }
-            else { //if score > 40 difficulty 3
+            if (currentLevel === 3) { //if score > 40 difficulty 3
                 barrels[j].y += 3;
                 coins[j].y += 1;
                 extraLives[j].y += 0.5;
@@ -1035,6 +1035,9 @@ draw = function() {
             }
             if (coins[j].y > 425) {
                 coins[j].y = -300;
+            }
+            if (score < 25) {
+                currentLevel = 1;
             }
             //event to make game harder
             if (score > 25) {
