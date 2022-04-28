@@ -27,7 +27,6 @@ var barrels = [];
 var speed = []; //used later in game to make barrels fall faster and harder for player
 var currentLives = 3;
 var score = 0;
-var x = 250;
 
 //Khan button class
 {
@@ -106,7 +105,13 @@ var drawHead = function(bitmojiX, bitmojiY, bitSize) {
     //drawHead
     fill(141, 85, 36); //skin color
     ellipse(bitmojiX+(bitSize/150*0),bitmojiY+(bitSize/150*0), bitSize/150*83, bitSize/150*100); //head
-    fill(255, 255, 255);
+    if (currentScene === 1) {
+        fill(174, 236, 245);
+    }
+    else {
+        fill(255, 255, 255); //white for cheek bones
+    }
+        
     arc(bitmojiX-(bitSize/150*43), bitmojiY+(bitSize/150*37), bitSize/150*28, bitSize/150*55, 0, 361); //left chisel
     arc(bitmojiX+(bitSize/150*43), bitmojiY+(bitSize/150*37), bitSize/150*28, bitSize/150*55, 0, 361); //right chisel
     fill(0, 0, 0);
@@ -182,13 +187,23 @@ var bitmojiHeadShape = function (bitmojiX, bitmojiY,bitmojiSize) {
     noStroke();
     fill(255,224,189);//head skin tone
     ellipse(bitmojiX,bitmojiY,85*(bitmojiSize/100),bitmojiSize); //head
-    fill(255, 255, 255); //white for cheek bones
+    if (currentScene === 1) {
+        fill(174, 236, 245);
+    }
+    else {
+        fill(255, 255, 255); //white for cheek bones
+    }
     arc(bitmojiX-(45*bitmojiSize/100),bitmojiY+(32*bitmojiSize/100),30*(bitmojiSize/100),55*(bitmojiSize/100),0,360); //left cheek
     arc(bitmojiX+(45*bitmojiSize/100),bitmojiY+(32*bitmojiSize/100),(30*bitmojiSize/100),(55*bitmojiSize/100),0,360); //right cheek
     fill(255,224,189); //skin tone
     arc(bitmojiX-(30*bitmojiSize/100),bitmojiY+(23*bitmojiSize/100),(4*bitmojiSize/100),(25*bitmojiSize/100),0,360); //rounds out left cheek
     arc(bitmojiX+(30*bitmojiSize/100),bitmojiY+(23*bitmojiSize/100),(4*bitmojiSize/100),(25*bitmojiSize/100),0,360); //rounds out right cheek
-    stroke(255, 255, 255); //white for jaw line
+    if (currentScene === 1) {
+        stroke(174, 236, 245);
+    }
+    else {
+        stroke(255, 255, 255); //white for cheek bones
+    }
     strokeWeight(4*bitmojiSize/100);
     line(bitmojiX-(36*bitmojiSize/100),bitmojiY+(37*bitmojiSize/100),bitmojiX+(6*bitmojiSize/100),bitmojiY+(59*bitmojiSize/100)); //left jaw line
     line(bitmojiX-(6*bitmojiSize/100),bitmojiY+(59*bitmojiSize/100),bitmojiX+(36*bitmojiSize/100),bitmojiY+(37*bitmojiSize/100)); //right jaw line
@@ -581,6 +596,8 @@ var gameScreen = function() {
     image(getImage("cute/WallBlockTall"),-45,280,70,116); //left wall
     image(getImage("cute/WallBlockTall"),375,280,70,116); //right wall
     //walls will act as bounds to our character later on
+    drawBitmojiEthan(15, 250, 30);
+    drawBitmoji(385, 250, 40);
 };
 
 //The buttons used in the Customize Screen
@@ -807,6 +824,7 @@ Lives.prototype.draw = function() {
 var Barrel = function(x, y) {
     this.x = x;
     this.y = y;
+    this.repeated = 0;
 };
 
 Barrel.prototype.draw = function() {
@@ -883,7 +901,7 @@ PlayerCharacter.prototype.checkForExtraLifeGrab = function (extraLives) {
 var player = new PlayerCharacter(200,330,15); //Game Character
 
 var gameOverHome = new SmallButton({
-    x: x,
+    x: 250,
     y: 300,
     label: "HOME",
     onClick: function() {
@@ -901,7 +919,7 @@ var gameOverHome = new SmallButton({
 });
 
 var gameOverRetry = new SmallButton({
-    x: x-200,
+    x: 50,
     y: 300,
     label: "RETRY",
     onClick: function() {
@@ -1019,12 +1037,12 @@ draw = function() {
                 coins[j].y += speed[j] * 1.5;
                 extraLives[j].y += speed[j] * 1.5;
             }
-            else if (currentLevel === 2) { //if score > 20
+            if (currentLevel === 2) { //if score > 20
                 barrels[j].y += 2;
                 coins[j].y += 2;
                 extraLives[j].y += 1;
             }
-            else { //if score > 40 difficulty 3
+            if (currentLevel === 3) { //if score > 40 difficulty 3
                 barrels[j].y += 3;
                 coins[j].y += 1;
                 extraLives[j].y += 0.5;
@@ -1032,9 +1050,16 @@ draw = function() {
             //create cycle for barrels and coins so is an infinite game
             if (barrels[j].y > 425) {
                 barrels[j].y = -300;
+                barrels[j].repeated += 1;
+                if (barrels[j].repeated > 2) {
+                    barrels[j].x = 600; //sets off the screen
+                }
             }
             if (coins[j].y > 425) {
                 coins[j].y = -300;
+            }
+            if (score < 25) {
+                currentLevel = 1;
             }
             //event to make game harder
             if (score > 25) {
