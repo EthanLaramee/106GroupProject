@@ -20,13 +20,15 @@ var shirtColor = color(255, 0, 0);
 var pantsColor = color(0, 0, 255);
 var hairColor = color(153, 92, 0);
 
-var possibleCoins = 50;
-var coins = [];
-var extraLives = [];
-var barrels = [];
+var possibleCoins = 50; //variable to change the quantity of coins in the game
+var coins = []; //array for coins
+var extraLives = []; //array for hearts
+var barrels = []; //array for barrels
 var speed = []; //used later in game to make barrels fall faster and harder for player
-var currentLives = 3;
+var currentLives = 3; //how many lives the character has 
 var score = 0;
+var sprint = false; //if false character walks, if true character runs
+var delayStartFC = null; //delay frameCount
 
 //Khan button class
 {
@@ -741,7 +743,7 @@ var helpScreen = function() {
     textSize(30);
     text("HOW TO PLAY:",20,15);
     textSize(15);
-    text("Using the arrow keys on your keyboard avoid the falling barrels and collect the coins. For every coin you collect you earn 5 points, but if you hit a barrel you will lose a life. Be careful, because you only have 3 lives, along with some extra lives. When you lose all of your lives the game will end and you will have the option to retry or return to the menu.", 30,75,230,195);
+    text("Using the arrow keys on your keyboard avoid the falling barrels and collect the coins. To sprint press 'SHIFT' and then the arrows. For every coin you collect you earn 5 points, but if you hit a barrel you will lose a life. Be careful, because you only have 3 lives, along with some extra lives. When you lose all of your lives the game will end and you will have the option to retry or return to the menu.", 30,75,230,195);
     virticalArrow(400,90,100);
     rightMario(305,255,35);
     gameCoin(330,125,100);
@@ -780,6 +782,7 @@ var customizeButton = new Button({
     }
 });
 
+//splash screen
 var splash = function() {
     noStroke();
     background(150, 0, 0);
@@ -850,7 +853,7 @@ var PlayerCharacter = function(x, y, size) {
     this.y = y;
     //this.score = 0;
     this.size = size;
-    this.speed = 2;
+    this.speed = 1;
     this.currentLives = 3;
 }; //PlayerCharcater class cuntion
 
@@ -870,6 +873,15 @@ PlayerCharacter.prototype.left = function() {
 
 PlayerCharacter.prototype.right = function() {
     this.x += this.speed;
+};
+
+//methods for sprint
+PlayerCharacter.prototype.leftSprint = function() {
+    this.x -= (this.speed * 2);
+};
+
+PlayerCharacter.prototype.rightSprint = function() {
+    this.x += (this.speed * 2);
 };
 
 
@@ -900,6 +912,7 @@ PlayerCharacter.prototype.checkForExtraLifeGrab = function (extraLives) {
 
 var player = new PlayerCharacter(200,330,15); //Game Character
 
+//home button in ending screen
 var gameOverHome = new SmallButton({
     x: 250,
     y: 300,
@@ -918,6 +931,7 @@ var gameOverHome = new SmallButton({
     }
 });
 
+//retry button in ending screen
 var gameOverRetry = new SmallButton({
     x: 50,
     y: 300,
@@ -987,6 +1001,22 @@ for (var n = 0; n < 4; n++) {
     speed2.push(1);
 }
 
+//if shift is pressed character will run
+keyPressed = function() {
+    if (keyCode === 16 && currentScene === 1)  {
+        sprint = true;
+        delayStartFC = frameCount;
+    }
+};
+
+//if shift is released speed is normal again
+keyReleased = function() {
+    if (keyCode === 16 && currentScene === 1) {
+        sprint = false;
+        delayStartFC = null;
+    }
+};
+
 draw = function() {
     if (currentScene === 0) {
         splash();
@@ -1003,6 +1033,10 @@ draw = function() {
     }
     else if (currentScene === 1) {
         gameScreen();
+        //after 5 with the shift pressed the speed becomes normal again
+        if (delayStartFC && (frameCount - delayStartFC) > 300) {
+            sprint = false;
+        }
         if (keyIsPressed && keyCode === RIGHT) {
             direction = 0;
             player.right();
@@ -1010,6 +1044,15 @@ draw = function() {
         else if (keyIsPressed && keyCode === LEFT) {
             direction = 1;
             player.left();
+        }
+        //to sprint press shift first and then arrows
+        if (keyIsPressed && keyCode === RIGHT && sprint === true) {
+            direction = 0;
+            player.rightSprint();
+        }
+        else if (keyIsPressed && keyCode === LEFT && sprint === true) {
+            direction = 1;
+            player.leftSprint();
         }
         /*
         else if (keyIsPressed && keyCode === 16 && (keyCode === LEFT || keyCode === RIGHT)) {
