@@ -2,7 +2,8 @@ var currentScene = 0;
 /*  0 = splash
     1 = game
     2 = help
-    else = customize
+    3 = customize
+    4 = game over screen
 */
 var direction = 0; //used to tell which way player is facing in game
 /*  0 = right
@@ -20,13 +21,15 @@ var shirtColor = color(255, 0, 0);
 var pantsColor = color(0, 0, 255);
 var hairColor = color(153, 92, 0);
 
-var possibleCoins = 50;
-var coins = [];
-var extraLives = [];
-var barrels = [];
+var possibleCoins = 50; //variable to change the quantity of coins in the game
+var coins = []; //array for coins
+var extraLives = []; //array for hearts
+var barrels = []; //array for barrels
 var speed = []; //used later in game to make barrels fall faster and harder for player
-var currentLives = 3;
+var currentLives = 3; //how many lives the character has 
 var score = 0;
+var sprint = false; //if false character walks, if true character runs
+var delayStartFC = null; //delay frameCount
 
 //Khan button class
 {
@@ -62,7 +65,7 @@ Button.prototype.handleMouseClick = function() {
 };
 }
 
-//Edited Khan button class for customization buttons
+//Edited Khan button class that will be used for the customization buttons
 //(A smaller button with centered text)
 {
 var SmallButton = function(config) {
@@ -512,7 +515,7 @@ var leftMario = function(xPos, yPos, size) {
 } // leftMario(xPos, yPos, size)
 
 
-//Defines arrow shape, which is resizable (used on help screen)
+//Defines virtical arrow shape, which is resizable (used on help screen)
 var virticalArrow = function(xPos, yPos, size) {
     noStroke();
     fill(0, 0, 0);
@@ -524,31 +527,30 @@ var virticalArrow = function(xPos, yPos, size) {
 //Defines coin used to earn points in the game
 var gameCoin = function(xPos, yPos, size) {
     noStroke();
-    fill(255, 230, 0);
+    fill(255, 230, 0); //coin rim color
     ellipse(xPos, yPos, 50*size/100, 50*size/100); //outer rim of coin
-    fill(250, 255, 0);
+    fill(250, 255, 0); //coin center color
     ellipse(xPos, yPos, 45*size/100, 45*size/100); //inner part of coin
-    fill(0, 0, 0);
-    textSize(35*size/100);
+    fill(0, 0, 0); //Text color
+    textSize(35*size/100); //text size is proportional to coin
     text("$",xPos - 9*size/100, yPos - 21*size/100); //text shown on top of coin
 };
-/*for some reason coin only works after using buttons on splash screen, otherwise the text will be outside of it*/
+
 
 //Defines barrel that user must avoid, otherwise will lose a life.
 var gameBarrel = function(xPos, yPos, size) {
-    
     stroke(0, 0, 0);
-    fill(158, 87, 0);
-    rect(xPos, yPos, 90*size/100, 60*size/100, 20*size/100);
-    line(xPos + 6*size/100, yPos + 5*size/100, xPos + 83*size/100, yPos + 5*size/100);
+    fill(158, 87, 0); //barrel color
+    rect(xPos, yPos, 90*size/100, 60*size/100, 20*size/100); //barrel shape
+    line(xPos + 6*size/100, yPos + 5*size/100, xPos + 83*size/100, yPos + 5*size/100); // lines going across the barrell
     line(xPos + 2*size/100, yPos + 15*size/100, xPos + 89*size/100, yPos + 15*size/100);
     line(xPos + 1*size/100, yPos + 30*size/100, xPos + 89*size/100, yPos + 30*size/100);
     line(xPos + 2*size/100, yPos + 45*size/100, xPos + 89*size/100, yPos + 45*size/100);
     line(xPos + 6*size/100, yPos + 55*size/100, xPos + 85*size/100, yPos + 55*size/100);
     noStroke();
-    textSize(40*size/100);
-    fill(255, 0, 0);
-    text("TNT",xPos + 6*size/100, yPos + 6*size/100, 90*size/100, 60*size/100);
+    textSize(40*size/100); //text size proportional to barrel size
+    fill(255, 0, 0); //text color
+    text("TNT",xPos + 6*size/100, yPos + 6*size/100, 90*size/100, 60*size/100); //text on barrel
 };
 
 //Defines heart that user can collect as an extra life in the game.
@@ -560,15 +562,15 @@ var lifeHeart = function(xPos, yPos, size) {
 //Defines the different types of clouds that will move across the sky
 var cloudType1 = function(xPos, yPos) {
     noStroke();
-    fill(255, 255, 255);
-    ellipse(xPos, yPos,80,50);
+    fill(255, 255, 255); // cloud color
+    ellipse(xPos, yPos,80,50); 
     ellipse(xPos - 37, yPos + 6,40,33);
     ellipse(xPos + 38, yPos + 10,45,25);
 };
 
 var cloudType2 = function(xPos, yPos) {
     noStroke();
-    fill(255, 255, 255);
+    fill(255, 255, 255); // cloud color
     ellipse(xPos + 100, yPos + 100,70,40);
     ellipse(xPos + 70, yPos + 95,44,26);
     ellipse(xPos + 130, yPos + 104,44,26);
@@ -576,7 +578,7 @@ var cloudType2 = function(xPos, yPos) {
 
 var cloudType3 = function(xPos, yPos) {
     noStroke();
-    fill(255, 255, 255);
+    fill(255, 255, 255); // cloud color
     ellipse(xPos + 181, yPos + 30,90,30);
     ellipse(xPos + 139, yPos + 35,35,18);
     ellipse(xPos + 193, yPos + 19,40,20);
@@ -588,17 +590,18 @@ var cloudType3 = function(xPos, yPos) {
 var gameScreen = function() {
     background(174, 236, 245); //sky color
     cloudType1(100,100);
-    cloudType2(150,65); //at somepoint I want to make the clouds move across the screen
+    cloudType2(150,65);
     cloudType3(125,40);
     for (var i = 0; i < 10; i++) {
         image(getImage("cute/StoneBlock"), -20 + 55*i, 357, 60, 50); //stone floor
     }
-    image(getImage("cute/WallBlockTall"),-45,280,70,116); //left wall
-    image(getImage("cute/WallBlockTall"),375,280,70,116); //right wall
+    image(getImage("cute/WallBlockTall"),-45,280,70,116); //left wall/bound
+    image(getImage("cute/WallBlockTall"),375,280,70,116); //right wall/bound
     //walls will act as bounds to our character later on
-    drawBitmojiEthan(15, 250, 30);
-    drawBitmoji(385, 250, 40);
+    drawBitmojiEthan(15, 250, 30); //Ethan's Bitmoji
+    drawBitmoji(385, 250, 40); //Abel's Bitmoji
 };
+
 
 //The buttons used in the Customize Screen
 {
@@ -694,22 +697,24 @@ var blackHairButton = new SmallButton({
 });
 }
 
+
 var customizeScreen = function() {
     background(174, 236, 245);
-    rightMario(108,30,31);
+    rightMario(108,30,31); //draws still mario on screen
     textSize(21);
     fill(0, 0, 0);
-    text("Shirt",10,155,120,40);
-    text("Pants",140,155,120,40);
-    text("Hair",270,155,120,40);
+    text("Shirt",50,155,120,40); //text over customization boxes
+    text("Pants",170,155,120,40);
+    text("Hair",310,155,120,40);
     noStroke();
-    fill(shirtColor);
+    fill(shirtColor); //color of box corresponds to the shirt color
     rect(10,180,120,210);
-    fill(pantsColor);
+    fill(pantsColor); //color of box corresponds to the pants color
     rect(140,180,120,210);
-    fill(hairColor);
+    fill(hairColor); //color of box corresponds to the hair color
     rect(270,180,120,210);
-    customizeHomeButton.draw();
+    customizeHomeButton.draw(); //button to return to home screen
+    //buttons below draw all of the buttons for the cusomization options
     redShirtButton.draw();
     greenShirtButton.draw();
     blackShirtButton.draw();
@@ -736,16 +741,16 @@ var helpScreen = function() {
     background(255, 158, 143);
     noStroke();
     fill(255, 255, 255);
-    rect(15,65,250,315,5);
+    rect(15,65,250,315,5); //outline box for text
     fill(0, 0, 0);
     textSize(30);
-    text("HOW TO PLAY:",20,15);
+    text("HOW TO PLAY:",20,15); //Title of screen
     textSize(15);
-    text("Using the arrow keys on your keyboard avoid the falling barrels and collect the coins. For every coin you collect you earn 5 points, but if you hit a barrel you will lose a life. Be careful, because you only have 3 lives, along with some extra lives. When you lose all of your lives the game will end and you will have the option to retry or return to the menu.", 30,75,230,195);
+    text("Use the arrow keys on your keyboard to avoid the falling barrels and collect the coins. To sprint press 'SHIFT' and then an arrow key. For every coin you collect you earn 5 points, but if you hit a barrel you will lose a life and 10 points. Be careful because you only have 3 lives, along with some extra lives. When you lose all of your lives the game will end and you will have the option to retry or return to the menu.", 30,75,230,195);
     virticalArrow(400,90,100);
     rightMario(305,255,35);
     gameCoin(330,125,100);
-    helpHomeButton.draw();
+    helpHomeButton.draw(); //return to home button
 };
 
 
@@ -770,7 +775,7 @@ var helpButton = new Button({
     }
 });
 
-//customize button to change from SPLASH to CUSTOIZE screen
+//customize button to change from SPLASH to CUSTOMIZE screen
 var customizeButton = new Button({
     x: 125,
     y: 335,
@@ -780,12 +785,13 @@ var customizeButton = new Button({
     }
 });
 
+//splash screen
 var splash = function() {
     noStroke();
     background(150, 0, 0);
     textSize(35);
     fill(255, 255, 255);
-    text("Barrel Dodger", 90, 10);
+    text("Barrel Dodger", 90, 10); //Title of Game
     noStroke();
     rect(0,221,width,height);
     drawBitmoji(60, 280, 84);
@@ -794,6 +800,7 @@ var splash = function() {
     helpButton.draw();
     customizeButton.draw();
 };
+
 
 //defines Coin constructor for "coins"
 {
@@ -807,6 +814,7 @@ Coin.prototype.draw = function() {
 };
 }
 
+
 //defines Lives constructor for "extraLives"
 {
 var Lives = function(x, y) {
@@ -818,6 +826,7 @@ Lives.prototype.draw = function() {
     lifeHeart(this.x, this.y, 50);
 };
 }
+
 
 //defines Barrel constructor for "barrels"
 {
@@ -848,11 +857,10 @@ pushFunction(); //push items into array
 var PlayerCharacter = function(x, y, size) {
     this.x = x;
     this.y = y;
-    //this.score = 0;
     this.size = size;
     this.speed = 2;
     this.currentLives = 3;
-}; //PlayerCharcater class cuntion
+}; //PlayerCharcater class funtion
 
 PlayerCharacter.prototype.draw = function() {
     this.x = constrain(this.x, 35, 340);
@@ -870,6 +878,15 @@ PlayerCharacter.prototype.left = function() {
 
 PlayerCharacter.prototype.right = function() {
     this.x += this.speed;
+};
+
+//methods for sprint
+PlayerCharacter.prototype.leftSprint = function() {
+    this.x -= (this.speed * 1.2); //speed increases by 20% when sprinting left
+};
+
+PlayerCharacter.prototype.rightSprint = function() {
+    this.x += (this.speed * 1.2); //speed increases by 20% when sprinting right
 };
 
 
@@ -900,6 +917,7 @@ PlayerCharacter.prototype.checkForExtraLifeGrab = function (extraLives) {
 
 var player = new PlayerCharacter(200,330,15); //Game Character
 
+//home button in ending screen
 var gameOverHome = new SmallButton({
     x: 250,
     y: 300,
@@ -918,6 +936,7 @@ var gameOverHome = new SmallButton({
     }
 });
 
+//retry button in ending screen
 var gameOverRetry = new SmallButton({
     x: 50,
     y: 300,
@@ -937,32 +956,34 @@ var gameOverRetry = new SmallButton({
 });
 
 //End screen
-var xEthan = 200;
+var xEthan = 300;
 var xAbel = 0;
+
 var gameOverScreen = function() {
     background(150, 0, 0);
     textSize(30);
     fill(255, 255, 255);
-    text('Click "RETRY" to try again!', 25, 250);
+    text('Score: ' + score, 145, 250);
     text('Game Over', 125, 210);
     noStroke();
     rect(0, -0, 400, 200);
     drawBitmoji(xAbel, 62, 100);
     drawBitmojiEthan(xEthan, 86, 82);
+    
     gameOverRetry.draw();
     gameOverHome.draw();
 };
 
 mouseClicked = function() {
-    if (currentScene === 0) {//if the current scene is splash make startButton clickable
+    if (currentScene === 0) {//if the current scene is SPLASH
         startButton.handleMouseClick();
         helpButton.handleMouseClick();
         customizeButton.handleMouseClick();
     }
-    else if (currentScene === 2) {
+    else if (currentScene === 2) { //if the current scene is HELP
         helpHomeButton.handleMouseClick();
     }
-    else if (currentScene === 3) {
+    else if (currentScene === 3) { //if the current scene is CUSTOMIZE
         customizeHomeButton.handleMouseClick();
         redShirtButton.handleMouseClick();
         greenShirtButton.handleMouseClick();
@@ -974,7 +995,7 @@ mouseClicked = function() {
         blondeHairButton.handleMouseClick();
         blackHairButton.handleMouseClick();
     }
-    else if (currentScene === 4) {
+    else if (currentScene === 4) { //if the current scene is GAME OVER
         gameOverHome.handleMouseClick();
         gameOverRetry.handleMouseClick();
     }
@@ -982,18 +1003,32 @@ mouseClicked = function() {
 
 //Character's position in game
 var splashRollerXPos = [0,110,250,-150];
-var speed2 = [];
-for (var n = 0; n < 4; n++) {
-    speed2.push(1);
-}
+var scrollerSpeed = 1;
+
+
+//if shift is pressed character will run
+keyPressed = function() {
+    if (keyCode === 16 && currentScene === 1)  {
+        sprint = true; //start sprinting
+        delayStartFC = frameCount; //turns on 5 second sprinting timer
+    }
+};
+
+//if shift is released speed is normal again
+keyReleased = function() {
+    if (keyCode === 16 && currentScene === 1) {
+        sprint = false; //when released stop sprinting
+        delayStartFC = null; //turns off 5 second sprinting timer
+    }
+};
 
 draw = function() {
     if (currentScene === 0) {
         splash();
         for (var i = 0; i < 4; i++) {
-            splashRollerXPos[i] += speed2[i];
-            if (splashRollerXPos[i] === 430) {
-                splashRollerXPos[i] = -120;
+            splashRollerXPos[i] += scrollerSpeed; //moves by speed
+            if (splashRollerXPos[i] === 430) { //if goes beyond right side
+                splashRollerXPos[i] = -120; //jump back to left side
             }
         }
         rightMario(splashRollerXPos[0], 85, 32);
@@ -1003,6 +1038,10 @@ draw = function() {
     }
     else if (currentScene === 1) {
         gameScreen();
+        //after 5 with the shift pressed the speed becomes normal again (stop sprint)
+        if (delayStartFC && (frameCount - delayStartFC) > 300) {
+            sprint = false;
+        }
         if (keyIsPressed && keyCode === RIGHT) {
             direction = 0;
             player.right();
@@ -1011,20 +1050,21 @@ draw = function() {
             direction = 1;
             player.left();
         }
-        /*
-        else if (keyIsPressed && keyCode === 16 && (keyCode === LEFT || keyCode === RIGHT)) {
-            player.speed = 2;
+        //to sprint press shift first and then arrows
+        if (keyIsPressed && keyCode === RIGHT && sprint === true) {
+            direction = 0;
+            player.rightSprint();
         }
-        else if (keyReleased && keyCode === 16) {
-                player.speed = 1;
+        else if (keyIsPressed && keyCode === LEFT && sprint === true) {
+            direction = 1;
+            player.leftSprint();
         }
-        */
         
         player.draw();
         
         for (var j = 0; j < possibleCoins; j++) {
             coins[j].draw();
-            player.checkForCoinGrab(coins[j]);
+            player.checkForCoinGrab(coins[j]); 
             barrels[j].draw();
             player.checkForBarrelGrab(barrels[j]);
             extraLives[j].draw();
@@ -1034,18 +1074,18 @@ draw = function() {
             }
             if (currentLevel === 1) { //difficulty 1
                 barrels[j].y += speed[j];
-                coins[j].y += speed[j] * 1.5;
-                extraLives[j].y += speed[j] * 1.5;
+                coins[j].y += speed[j] * 1.5; //increases coin fall speed
+                extraLives[j].y += speed[j] * 1.5; //increases extralife fall speed
             }
             if (currentLevel === 2) { //if score > 20
-                barrels[j].y += 2;
-                coins[j].y += 2;
-                extraLives[j].y += 1;
+                barrels[j].y += speed[j] * 2; //increases barrel fall speed
+                coins[j].y += speed[j] * 2; //increases coin fall speed
+                extraLives[j].y += speed[j]; //decreases extralife fall speed
             }
             if (currentLevel === 3) { //if score > 40 difficulty 3
-                barrels[j].y += 3;
-                coins[j].y += 1;
-                extraLives[j].y += 0.5;
+                barrels[j].y += speed[j] * 3; //increases barrel fall speed
+                coins[j].y += speed[j] * 2.5; //increases coin fall speed
+                extraLives[j].y += speed[j]; //extra life fall speed stays the same
             }
             //create cycle for barrels and coins so is an infinite game
             if (barrels[j].y > 425) {
@@ -1088,8 +1128,8 @@ draw = function() {
             fill(255, 0, 0);
         }
         text("Speed: " + currentLevel, 30, 35);
-        for (var k = 0; k < currentLives; k++) {
-            lifeHeart(235 + 26 * k, -2, 50);
+        for (var k = 0; k < currentLives; k++) { 
+            lifeHeart(235 + 26 * k, -2, 50); //prints list of hearts, based on current lives, on game screen
         }
         if (currentLives === 0) {
             currentScene = 4;
@@ -1105,13 +1145,13 @@ draw = function() {
         gameOverScreen();
         //Bitmojis movement in endscreen
         for (var c = 0; c < 2; c++) {
-            xEthan += speed2[c];
-            xAbel += speed2[c];
-            if (xEthan === 500) {
-                xEthan = -120;
+            xEthan += scrollerSpeed;
+            xAbel += scrollerSpeed;
+            if (xEthan === 500) { //if goes beyond right edge
+                xEthan = -120; //jump back to left side
             }
-            if (xAbel === 500) {
-                xAbel = -120;
+            if (xAbel === 500) { //if goes beyond right edge
+                xAbel = -120; //jump back to left side
             }
         }
     }
