@@ -794,8 +794,12 @@ var splash = function() {
     text("Barrel Dodger", 90, 10); //Title of Game
     noStroke();
     rect(0,221,width,height);
-    drawBitmoji(60, 280, 84);
-    drawBitmojiEthan(340, 301, 61);
+    drawBitmoji(60, 280, 84); //Abel's Bitmoji
+    drawBitmojiEthan(340, 301, 61); //Ethan's Bitmoji
+    fill(0, 0, 0);
+    textSize(14);
+    text("Abel", 44, 225);
+    text("Ethan", 322, 225);
     startButton.draw();
     helpButton.draw();
     customizeButton.draw();
