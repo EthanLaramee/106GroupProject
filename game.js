@@ -746,7 +746,7 @@ var helpScreen = function() {
     textSize(30);
     text("HOW TO PLAY:",20,15); //Title of screen
     textSize(15);
-    text("Use the arrow keys on your keyboard to avoid the falling barrels and collect the coins. To sprint press 'SHIFT' and then an arrow key. For every coin you collect you earn 5 points, but if you hit a barrel you will lose a life and 10 points. Be careful because you only have 3 lives, along with some extra lives. When you lose all of your lives the game will end and you will have the option to retry or return to the menu.", 30,75,230,195);
+    text("Use the arrow keys on your keyboard to avoid the falling barrels and collect the coins. To sprint press 'SHIFT' and then an arrow key. For every coin you collect you earn 5 points, but if you hit a barrel you will lose a life and 10 points. Be careful because you only have 3 lives, along with some extra lives. When you lose all of your lives the game will end and you will have the option to retry or return to the menu.", 30,75,230,241);
     virticalArrow(400,90,100);
     rightMario(305,255,35);
     gameCoin(330,125,100);
